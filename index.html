@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>P U G  P H</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Rajdhani Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="background"></div>
+  <div class="container" id="landing-container">
+    <h1 class="title">Basketball PUG Ph</h1>
+    <p class="welcome-note">Join the community of passionate ballers!</p>
+    <button id="register-button">Register</button>
+    <button id="login-button">Login</button>
+  </div>
+  <div class="container" id="register-container" style="display:none;">
+    <h1 class="title">Register</h1>
+    <form id="registerForm">
+      <input type="text" id="name" placeholder="Name" required>
+      <input type="email" id="email" placeholder="Email" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button type="submit">Register</button>
+    </form>
+  </div>
+  <div class="container" id="login-container" style="display:none;">
+    <h1 class="title">Login</h1>
+    <form id="loginForm">
+      <input type="email" id="login-email" placeholder="Email" required>
+      <input type="password" id="login-password" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+  <div class="container" id="profile-container" style="display:none;">
+    <h1 class="title">Player Profile</h1>
+    <form id="profileForm">
+      <input type="text" id="profile-name" placeholder="Name" required>
+      <input type="text" id="profile-gender" placeholder="Gender">
+      <input type="number" id="profile-age" placeholder="Age">
+      <input type="date" id="profile-birthday" placeholder="Birthday">
+      <input type="number" id="profile-height" placeholder="Height (cm)">
+      <input type="number" id="profile-weight" placeholder="Weight (kg)">
+      <input type="text" id="profile-positionPlayed" placeholder="Position Played">
+      <input type="file" id="profile-photo" accept="image/*">
+      <button type="submit">Update Profile</button>
+    </form>
+    <p id="player-stats"></p>
+    <button id="logout-button">Logout</button>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
