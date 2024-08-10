@@ -38,6 +38,26 @@ document.addEventListener('DOMContentLoaded', () => {
   confirmationMessage.classList.add('confirmation-message');
   document.body.appendChild(confirmationMessage);
 
+  const createClubButton = document.getElementById('create-club-button');
+  const createClubModal = document.getElementById('create-club-modal');
+  const closeCreateClubModalButton = document.getElementById('close-create-club-modal-button');
+  const createClubForm = document.getElementById('createClubForm');
+  const clubSelect = document.getElementById('club-select');
+  const clubList = document.getElementById('club-list');
+  const addAdminButton = document.getElementById('add-admin-button');
+  const clubAdminsInput = document.getElementById('club-admins');
+  const clubAdminsContainer = document.getElementById('club-admins-container');
+  const clubAmbassadorInput = document.getElementById('club-ambassador');
+  const deleteClubModal = document.getElementById('delete-club-modal');
+  const closeDeleteClubModalButton = document.getElementById('close-delete-club-modal-button');
+  const deleteClubButton = document.getElementById('delete-club-button');
+  const deleteClubPassword = document.getElementById('delete-club-password');
+
+  let clubs = JSON.parse(localStorage.getItem('clubs')) || [];
+  let currentUserEmail = localStorage.getItem('currentUser');
+  let currentUser = JSON.parse(localStorage.getItem(currentUserEmail)) || null;
+  let clubAdmins = [];
+
   const countries = {
     "af": "Afghanistan",
     "ax": "Åland Islands",
@@ -468,6 +488,175 @@ document.addEventListener('DOMContentLoaded', () => {
     activityContainer.style.display = 'none';
     landingContainer.style.display = 'block';
   });
+
+  const renderClubs = () => {
+    clubSelect.innerHTML = '';
+    clubList.innerHTML = '';
+
+    clubs.forEach(club => {
+      const option = document.createElement('option');
+      option.value = club.name;
+      option.textContent = club.name;
+      clubSelect.appendChild(option);
+
+      const clubDiv = document.createElement('div');
+      clubDiv.classList.add('club');
+      clubDiv.innerHTML = `
+        <h4><img src="${club.logo}" alt="${club.name} logo" class="club-logo"> ${club.name}
+        <button class="leave-club-button" data-club-name="${club.name}">Leave Club</button></h4>
+        <p>${club.history}</p>
+        <p>Established: ${club.year}</p>
+        <p>Location: ${club.location}</p>
+        <p>Ambassador: ${club.ambassador}</p>
+        <p>Admins: ${club.admins.join(', ')}</p>
+        <p>Total Members: ${club.members.length}</p>
+      `;
+      
+      if (club.ambassador === currentUser.name || club.admins.includes(currentUser.name)) {
+        const editButton = document.createElement('button');
+        editButton.textContent = 'Edit Club Details';
+        editButton.classList.add('edit-club-button');
+        editButton.addEventListener('click', () => {
+          fillEditClubForm(club);
+          createClubModal.style.display = 'block';
+        });
+        clubDiv.appendChild(editButton);
+      }
+
+      if (club.ambassador === currentUser.name) {
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete Club';
+        deleteButton.classList.add('delete-club-button');
+        deleteButton.addEventListener('click', () => {
+          deleteClubModal.style.display = 'block';
+          deleteClubButton.addEventListener('click', () => {
+            const password = deleteClubPassword.value;
+            if (password === currentUser.password) {
+              clubs = clubs.filter(c => c.name !== club.name);
+              localStorage.setItem('clubs', JSON.stringify(clubs));
+              showConfirmationMessage('Club deleted successfully');
+              deleteClubModal.style.display = 'none';
+              renderClubs();
+              checkCreateClubButtonVisibility();
+            } else {
+              alert('Incorrect password');
+            }
+          });
+        });
+        clubDiv.appendChild(deleteButton);
+      }
+
+      clubList.appendChild(clubDiv);
+    });
+  };
+
+  const checkCreateClubButtonVisibility = () => {
+    if (clubs.some(club => club.ambassador === currentUser.name)) {
+      createClubButton.style.display = 'none';
+    } else {
+      createClubButton.style.display = 'block';
+    }
+  };
+
+  createClubButton.addEventListener('click', () => {
+    clubAmbassadorInput.value = currentUser.name;
+    createClubModal.style.display = 'block';
+  });
+
+  closeCreateClubModalButton.addEventListener('click', () => {
+    createClubModal.style.display = 'none';
+  });
+
+  closeDeleteClubModalButton.addEventListener('click', () => {
+    deleteClubModal.style.display = 'none';
+  });
+
+  addAdminButton.addEventListener('click', () => {
+    const adminName = clubAdminsInput.value.trim();
+    if (adminName && !clubAdmins.includes(adminName)) {
+      clubAdmins.push(adminName);
+      const adminTag = document.createElement('span');
+      adminTag.textContent = adminName;
+      adminTag.style.marginRight = '10px';
+      clubAdminsContainer.appendChild(adminTag);
+      clubAdminsInput.value = '';
+    }
+  });
+
+  createClubForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const ambassador = document.getElementById('club-ambassador').value;
+    const name = document.getElementById('club-name').value;
+    const logoFile = document.getElementById('club-logo').files[0];
+    const history = document.getElementById('club-history').value;
+    const year = document.getElementById('club-year').value;
+    const location = document.getElementById('club-location').value;
+
+    if (!logoFile) {
+      alert('Please upload a logo.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const logo = e.target.result;
+      const newClub = { ambassador, name, logo, history, year, location, admins: clubAdmins, members: [ambassador] };
+      clubs.push(newClub);
+      localStorage.setItem('clubs', JSON.stringify(clubs));
+      showConfirmationMessage('Club created successfully');
+      createClubForm.reset();
+      clubAdmins = [];
+      clubAdminsContainer.querySelectorAll('span').forEach(span => span.remove());
+      createClubModal.style.display = 'none';
+      renderClubs();
+      checkCreateClubButtonVisibility();
+    };
+    reader.readAsDataURL(logoFile);
+  });
+
+  const fillEditClubForm = (club) => {
+    document.getElementById('club-ambassador').value = club.ambassador;
+    document.getElementById('club-name').value = club.name;
+    document.getElementById('club-history').value = club.history;
+    document.getElementById('club-year').value = club.year;
+    document.getElementById('club-location').value = club.location;
+    clubAdmins = club.admins;
+    clubAdminsContainer.innerHTML = '';
+    club.admins.forEach(admin => {
+      const adminTag = document.createElement('span');
+      adminTag.textContent = admin;
+      adminTag.style.marginRight = '10px';
+      clubAdminsContainer.appendChild(adminTag);
+    });
+  };
+
+  // New Leave Club function
+  const leaveClub = (clubName) => {
+    clubs = clubs.map(club => {
+      if (club.name === clubName) {
+        club.members = club.members.filter(member => member !== currentUser.name);
+        club.admins = club.admins.filter(admin => admin !== currentUser.name);
+      }
+      return club;
+    });
+    localStorage.setItem('clubs', JSON.stringify(clubs));
+    showConfirmationMessage('You have left the club');
+    renderClubs();
+    checkCreateClubButtonVisibility();
+  };
+
+  // Event listener for leave club buttons
+  document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('leave-club-button')) {
+      const clubName = event.target.getAttribute('data-club-name');
+      leaveClub(clubName);
+    }
+  });
+
+  // Initial setup
+  renderClubs();
+  checkCreateClubButtonVisibility();
 
   // Populate country dropdowns on page load
   populateCountryDropdowns();
