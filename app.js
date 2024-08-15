@@ -52,11 +52,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeDeleteClubModalButton = document.getElementById('close-delete-club-modal-button');
   const deleteClubButton = document.getElementById('delete-club-button');
   const deleteClubPassword = document.getElementById('delete-club-password');
+  const calendar = document.getElementById('calendar');
+  const gameFormContainer = document.getElementById('game-form-container');
+  const createGameForm = document.getElementById('createGameForm');
+  const eventsList = document.getElementById('events-list');
 
   let clubs = JSON.parse(localStorage.getItem('clubs')) || [];
   let currentUserEmail = localStorage.getItem('currentUser');
   let currentUser = JSON.parse(localStorage.getItem(currentUserEmail)) || null;
   let clubAdmins = [];
+  let games = JSON.parse(localStorage.getItem('games')) || [];
 
   const countries = {
     "af": "Afghanistan",
@@ -348,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
     playerHeight.innerText = `Height: ${storedUser.height || ''} cm`;
     playerWeight.innerText = `Weight: ${storedUser.weight || ''} kg`;
     playerPositionPlayed.innerText = `Position Played: ${storedUser.positionPlayed || ''}`;
-    profilePhoto.src = storedUser.profilePhoto || 'default-profile.png'; // Load profile photo
+    profilePhoto.src = storedUser.profilePhoto || 'default-profile.png';
     playerStats.innerText = `Reputation: ${storedUser.reputation || 0}\nAttitude: ${storedUser.attitude || 0}\nGames Played: ${storedUser.gamesPlayed || 0}\nGames Missed: ${storedUser.gamesMissed || 0}\nLeague MVP: ${storedUser.leagueMVP || 0}\nMythical Awards: ${storedUser.mythicalAwards || 0}`;
 
     playerFlags.innerHTML = '';
@@ -459,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
       reader.onload = function(e) {
         storedUser.profilePhoto = e.target.result;
         profilePhoto.src = e.target.result;
-        localStorage.setItem(email, JSON.stringify(storedUser)); // Save updated user with profile photo
+        localStorage.setItem(email, JSON.stringify(storedUser));
         showConfirmationMessage('Profile updated successfully');
         displayProfile();
         editProfileModal.style.display = 'none';
@@ -502,8 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const clubDiv = document.createElement('div');
       clubDiv.classList.add('club');
       clubDiv.innerHTML = `
-        <h4><img src="${club.logo}" alt="${club.name} logo" class="club-logo"> ${club.name}
-        <button class="leave-club-button" data-club-name="${club.name}">Leave Club</button></h4>
+        <h4><img src="${club.logo}" alt="${club.name} logo" class="club-logo"> ${club.name}</h4>
+        <button class="leave-club-button" data-club-name="${club.name}">Leave Club</button>
         <p>${club.history}</p>
         <p>Established: ${club.year}</p>
         <p>Location: ${club.location}</p>
@@ -548,6 +553,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
       clubList.appendChild(clubDiv);
     });
+
+    document.querySelectorAll('.leave-club-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const clubName = e.target.getAttribute('data-club-name');
+        leaveClub(clubName);
+      });
+    });
+  };
+
+  const leaveClub = (clubName) => {
+    clubs = clubs.map(club => {
+      if (club.name === clubName) {
+        club.members = club.members.filter(member => member !== currentUser.name);
+        club.admins = club.admins.filter(admin => admin !== currentUser.name);
+      }
+      return club;
+    });
+    localStorage.setItem('clubs', JSON.stringify(clubs));
+    showConfirmationMessage('You have left the club.');
+    renderClubs();
   };
 
   const checkCreateClubButtonVisibility = () => {
@@ -631,32 +656,61 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  // New Leave Club function
-  const leaveClub = (clubName) => {
-    clubs = clubs.map(club => {
-      if (club.name === clubName) {
-        club.members = club.members.filter(member => member !== currentUser.name);
-        club.admins = club.admins.filter(admin => admin !== currentUser.name);
-      }
-      return club;
-    });
-    localStorage.setItem('clubs', JSON.stringify(clubs));
-    showConfirmationMessage('You have left the club');
-    renderClubs();
-    checkCreateClubButtonVisibility();
-  };
-
-  // Event listener for leave club buttons
-  document.addEventListener('click', (event) => {
-    if (event.target.classList.contains('leave-club-button')) {
-      const clubName = event.target.getAttribute('data-club-name');
-      leaveClub(clubName);
-    }
+  calendar.addEventListener('change', (e) => {
+    gameFormContainer.style.display = 'block';
   });
+
+  createGameForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const gameTitle = document.getElementById('game-title').value;
+    const gameLocation = document.getElementById('game-location').value;
+    const gameDate = document.getElementById('game-date').value;
+    const gameTime = document.getElementById('game-time').value;
+    const gameDuration = document.getElementById('game-duration').value;
+    const gameSetDuration = document.getElementById('game-set-duration').value;
+    const gameMaxPlayers = document.getElementById('game-max-players').value;
+    const gameReputationReward = document.getElementById('game-reputation-reward').value;
+
+    const newGame = {
+      title: gameTitle,
+      location: gameLocation,
+      date: gameDate,
+      time: gameTime,
+      duration: gameDuration,
+      setDuration: gameSetDuration,
+      maxPlayers: gameMaxPlayers,
+      reputationReward: gameReputationReward,
+      attendees: []
+    };
+
+    games.push(newGame);
+    localStorage.setItem('games', JSON.stringify(games));
+    showConfirmationMessage('Game scheduled successfully');
+    createGameForm.reset();
+    gameFormContainer.style.display = 'none';
+    renderGames();
+  });
+
+  const renderGames = () => {
+    eventsList.innerHTML = '';
+    games.forEach(game => {
+      const eventDiv = document.createElement('div');
+      eventDiv.classList.add('event');
+      eventDiv.innerHTML = `
+        <h4>${game.title}</h4>
+        <p>Date: ${game.date}</p>
+        <p>Time: ${game.time}</p>
+        <p>Location: ${game.location}</p>
+      `;
+      eventsList.appendChild(eventDiv);
+    });
+  };
 
   // Initial setup
   renderClubs();
   checkCreateClubButtonVisibility();
+  renderGames();
 
   // Populate country dropdowns on page load
   populateCountryDropdowns();

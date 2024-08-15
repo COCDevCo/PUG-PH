@@ -73,6 +73,22 @@
         <div id="club-list">
           <!-- List of clubs will be rendered here -->
         </div>
+        <div id="calendar-container">
+          <input type="date" id="calendar">
+          <div id="game-form-container" style="display:none;">
+            <form id="createGameForm">
+              <input type="text" id="game-title" placeholder="Event/Game Title" required>
+              <input type="text" id="game-location" placeholder="Pin on Map Location" required>
+              <input type="date" id="game-date" required>
+              <input type="time" id="game-time" required>
+              <input type="number" id="game-duration" placeholder="Duration of Event (minutes)" required>
+              <input type="number" id="game-set-duration" placeholder="Duration of Each Game Set (minutes)" required>
+              <input type="number" id="game-max-players" placeholder="Max Players" required>
+              <input type="number" id="game-reputation-reward" placeholder="Reputation Reward" required>
+              <button type="submit">Create Game</button>
+            </form>
+          </div>
+        </div>
       </div>
       <div id="NewsFeeds" class="tabcontent">
         <h3>News Feeds</h3>
@@ -80,7 +96,9 @@
       </div>
       <div id="Events" class="tabcontent">
         <h3>Events</h3>
-        <p>Upcoming basketball events.</p>
+        <div id="events-list">
+          <!-- Upcoming events will be rendered here -->
+        </div>
       </div>
       <div id="LivePUG" class="tabcontent">
         <h3>Live PUG Around You</h3>
