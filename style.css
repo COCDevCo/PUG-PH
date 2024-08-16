@@ -41,8 +41,8 @@ body {
 }
 
 .profile-container img {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid gray;
@@ -72,6 +72,19 @@ form select {
 
 button {
   margin-top: 10px;
+  padding: 8px 15px;
+  background: #ff4500;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+button:hover {
+  background: #cc3700;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .form-container {
@@ -80,7 +93,7 @@ button {
   border-radius: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
-  width: 300px;
+  width: 280px;
   text-align: center;
   position: absolute;
   left: 50%;
@@ -94,7 +107,7 @@ button {
   border-radius: 15px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(10px);
-  width: 600px;
+  width: 580px;
   text-align: center;
   margin-left: 20px;
   margin-top: 20px;
@@ -112,7 +125,7 @@ button {
   border: none;
   outline: none;
   cursor: pointer;
-  padding: 14px 16px;
+  padding: 12px 14px;
   transition: 0.3s;
   font-family: 'Oswald', sans-serif;
   font-size: 1em;
@@ -177,22 +190,6 @@ input {
   border-radius: 10px;
   outline: none;
   font-size: 1em;
-}
-
-button {
-  padding: 10px;
-  background: #ff4500;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1em;
-  margin-top: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-button:hover {
-  background: #cc3700;
 }
 
 .modal {
@@ -269,8 +266,8 @@ button:hover {
 }
 
 .club-logo {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   border-radius: 5px;
   margin-right: 10px;
   vertical-align: middle;
@@ -292,7 +289,7 @@ button:hover {
 }
 
 .delete-club-button {
-  background-color: #ff0000;
+  background-color: #ff4500;
   color: white;
   border: none;
   padding: 5px 10px;
@@ -312,9 +309,52 @@ button:hover {
   margin: 10px 0;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 100%;
+  height: 180px;
 }
 
 .event h4 {
   font-family: 'Oswald', sans-serif;
   margin: 0 0 10px;
 }
+
+.event p {
+  margin: 0 0 5px;
+}
+
+.event img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.event-container {
+  display: flex;
+  overflow-x: auto;
+  gap: 15px;
+  padding: 10px 0;
+  scroll-snap-type: x mandatory;
+}
+
+.event-container::-webkit-scrollbar {
+  display: none;
+}
+
+.event {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 300px;
+  height: 250px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.event:hover {
+  transform: scale(1.05);
+}
+

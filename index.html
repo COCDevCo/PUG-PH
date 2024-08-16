@@ -75,19 +75,22 @@
         </div>
         <div id="calendar-container">
           <input type="date" id="calendar">
-          <div id="game-form-container" style="display:none;">
+          <button id="create-game-schedule-button">Create Game Schedule</button>
+          <div id="game-form-container" style="display:none; margin-top: 10px;">
             <form id="createGameForm">
               <input type="text" id="game-title" placeholder="Event/Game Title" required>
               <input type="text" id="game-location" placeholder="Pin on Map Location" required>
               <input type="date" id="game-date" required>
               <input type="time" id="game-time" required>
-              <input type="number" id="game-duration" placeholder="Duration of Event (minutes)" required>
-              <input type="number" id="game-set-duration" placeholder="Duration of Each Game Set (minutes)" required>
+              <input type="time" id="game-end-time" required>
               <input type="number" id="game-max-players" placeholder="Max Players" required>
               <input type="number" id="game-reputation-reward" placeholder="Reputation Reward" required>
               <button type="submit">Create Game</button>
             </form>
           </div>
+        </div>
+        <div id="game-schedule-container">
+          <!-- Game schedules will be rendered here -->
         </div>
       </div>
       <div id="NewsFeeds" class="tabcontent">

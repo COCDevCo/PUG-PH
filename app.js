@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const gameFormContainer = document.getElementById('game-form-container');
   const createGameForm = document.getElementById('createGameForm');
   const eventsList = document.getElementById('events-list');
+  const gameScheduleContainer = document.getElementById('game-schedule-container');
 
   let clubs = JSON.parse(localStorage.getItem('clubs')) || [];
   let currentUserEmail = localStorage.getItem('currentUser');
@@ -667,8 +668,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameLocation = document.getElementById('game-location').value;
     const gameDate = document.getElementById('game-date').value;
     const gameTime = document.getElementById('game-time').value;
-    const gameDuration = document.getElementById('game-duration').value;
-    const gameSetDuration = document.getElementById('game-set-duration').value;
+    const gameEndTime = document.getElementById('game-end-time').value;
     const gameMaxPlayers = document.getElementById('game-max-players').value;
     const gameReputationReward = document.getElementById('game-reputation-reward').value;
 
@@ -677,11 +677,11 @@ document.addEventListener('DOMContentLoaded', () => {
       location: gameLocation,
       date: gameDate,
       time: gameTime,
-      duration: gameDuration,
-      setDuration: gameSetDuration,
+      endTime: gameEndTime,
       maxPlayers: gameMaxPlayers,
       reputationReward: gameReputationReward,
-      attendees: []
+      attendees: [],
+      clubName: clubSelect.value
     };
 
     games.push(newGame);
@@ -694,17 +694,107 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const renderGames = () => {
     eventsList.innerHTML = '';
+    gameScheduleContainer.innerHTML = '';
+
     games.forEach(game => {
       const eventDiv = document.createElement('div');
       eventDiv.classList.add('event');
       eventDiv.innerHTML = `
         <h4>${game.title}</h4>
+        <p>Club: ${game.clubName}</p>
         <p>Date: ${game.date}</p>
-        <p>Time: ${game.time}</p>
+        <p>Time: ${game.time} - ${game.endTime}</p>
         <p>Location: ${game.location}</p>
+        <p>Registered: ${game.attendees.length}/${game.maxPlayers}</p>
+        <button class="join-button" data-game-title="${game.title}">Join</button>
       `;
       eventsList.appendChild(eventDiv);
+
+      // Add the game schedule in the responsive container
+      const gameDiv = document.createElement('div');
+      gameDiv.classList.add('game-schedule');
+      gameDiv.innerHTML = `
+        <h5>${game.title}</h5>
+        <p>${game.date} | ${game.time} - ${game.endTime}</p>
+        <p>${game.location}</p>
+        <button class="edit-game-button" data-game-title="${game.title}">Edit</button>
+        <button class="delete-game-button" data-game-title="${game.title}">Delete</button>
+        <button class="view-players-button" data-game-title="${game.title}">View Players</button>
+      `;
+      gameScheduleContainer.appendChild(gameDiv);
     });
+
+    document.querySelectorAll('.join-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const gameTitle = e.target.getAttribute('data-game-title');
+        joinGame(gameTitle);
+      });
+    });
+
+    document.querySelectorAll('.edit-game-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const gameTitle = e.target.getAttribute('data-game-title');
+        editGame(gameTitle);
+      });
+    });
+
+    document.querySelectorAll('.delete-game-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const gameTitle = e.target.getAttribute('data-game-title');
+        deleteGame(gameTitle);
+      });
+    });
+
+    document.querySelectorAll('.view-players-button').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const gameTitle = e.target.getAttribute('data-game-title');
+        viewPlayers(gameTitle);
+      });
+    });
+  };
+
+  const joinGame = (gameTitle) => {
+    games = games.map(game => {
+      if (game.title === gameTitle && !game.attendees.includes(currentUser.name)) {
+        if (game.attendees.length < game.maxPlayers) {
+          game.attendees.push(currentUser.name);
+          showConfirmationMessage('Successfully joined the game');
+        } else {
+          showConfirmationMessage('Game is full');
+        }
+      }
+      return game;
+    });
+    localStorage.setItem('games', JSON.stringify(games));
+    renderGames();
+  };
+
+  const editGame = (gameTitle) => {
+    const game = games.find(g => g.title === gameTitle);
+    if (game) {
+      document.getElementById('game-title').value = game.title;
+      document.getElementById('game-location').value = game.location;
+      document.getElementById('game-date').value = game.date;
+      document.getElementById('game-time').value = game.time;
+      document.getElementById('game-end-time').value = game.endTime;
+      document.getElementById('game-max-players').value = game.maxPlayers;
+      document.getElementById('game-reputation-reward').value = game.reputationReward;
+      gameFormContainer.style.display = 'block';
+    }
+  };
+
+  const deleteGame = (gameTitle) => {
+    games = games.filter(game => game.title !== gameTitle);
+    localStorage.setItem('games', JSON.stringify(games));
+    showConfirmationMessage('Game deleted successfully');
+    renderGames();
+  };
+
+  const viewPlayers = (gameTitle) => {
+    const game = games.find(g => g.title === gameTitle);
+    if (game) {
+      alert(`Players: ${game.attendees.join(', ')}`);
+    }
   };
 
   // Initial setup
